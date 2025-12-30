@@ -98,7 +98,7 @@ CSS
   --color-surface-base: #f5f5f7; /* Fundo estilo Apple */
 }
 🤝 Contribuição
-Contribuições são bem-vindas!
+Contribuições são muito bem-vindas!
 
 Fork o projeto
 
