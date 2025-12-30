@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* 1. CONFIGURAÇÃO DO TEMA */
+@theme {
+  --color-brand: #136dec;
+  --color-brand-dark: #0f5bbd;
+  --color-brand-light: #136dec1a;
+
+  --color-surface-base: var(--surface-base);
+  --color-surface-card: var(--surface-card);
+  --color-surface-highlight: var(--surface-highlight);
+
+  --color-txt-primary: var(--txt-primary);
+  --color-txt-secondary: var(--txt-secondary);
+
+  --color-border-subtle: var(--border-subtle);
+}
+
+/* 2. DEFINIÇÃO DAS VARIÁVEIS */
+
+/* MODO CLARO (Padrão absoluto) */
+/* Se não tiver a classe .dark, usa isso aqui */
+:root {
+  --surface-base: #f6f7f8;
+  --surface-card: #ffffff;
+  --surface-highlight: #f1f5f9;
+
+  --txt-primary: #0f172a;
+  --txt-secondary: #64748b;
+
+  --border-subtle: #e2e8f0;
+}
+
+/* MODO ESCURO (Manual) */
+/* Ativado SOMENTE quando o JS adiciona a classe .dark */
+:root.dark {
+  --surface-base: #101822;
+  --surface-card: #1e293b;
+  --surface-highlight: #334155;
+
+  --txt-primary: #f8fafc;
+  --txt-secondary: #94a3b8;
+
+  --border-subtle: #334155;
+}
+
+/* 3. RESET */
+body {
+  background-color: var(--surface-base);
+  color: var(--txt-primary);
+  font-family: Arial, Helvetica, sans-serif;
+  
+  /* Transição suave para não "piscar" na troca */
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
