@@ -1,78 +1,84 @@
 # 🎙️ Audio Scribe
 
-![Project Status](https://img.shields.io/badge/status-active-success)
+![Project Status](https://img.shields.io/badge/status-online-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+![Tech](https://img.shields.io/badge/stack-Next.js%20%7C%20FastAPI%20%7C%20Groq-purple)
 
 > **Transcrição de áudio ultrarrápida e inteligente.**
-> Transforme áudio em texto estruturado em segundos usando o poder das LPUs da Groq (Whisper v3) e refinamento via Llama 3.
+> Uma aplicação Fullstack que transforma áudio em texto estruturado em segundos usando o poder das LPUs da Groq (Whisper v3) e refinamento via Llama 3.
 
-![Screenshot do Projeto](./public/screenshot.png)
-*(Dica: Salve um print da tela como `screenshot.png` na pasta `public`)*
+## 📸 Screenshots
+
+| Transcrição Bruta (Whisper) | Refinamento com IA (Llama 3) |
+|:---:|:---:|
+| ![Transcrição Raw](./public/print-raw.jpeg) | ![IA Refinada](./public/print-ai.jpeg) |
 
 ## ✨ Funcionalidades
 
-- 🚀 **Transcrição Instantânea:** Processamento via Groq Cloud (Whisper Large v3) muito mais rápido que execução local.
-- 🧠 **Refinamento com IA:** Transforma o texto bruto em parágrafos legíveis com pontuação correta (Llama 3.3).
-- 🎨 **Design System Moderno:** Interface "Clean" inspirada na Apple, construída com Tailwind CSS v4.
-- 🌗 **Dark/Light Mode:** Detecção automática de tema do sistema e alternância manual suave.
-- 📱 **Totalmente Responsivo:** Layout Mobile-First que funciona perfeitamente em celulares e desktops.
-- 📤 **Compartilhamento Nativo:** Integração com Web Share API para enviar direto para WhatsApp/Email no mobile.
+- 🚀 **Transcrição Instantânea:** Processamento via Groq Cloud (Whisper Large v3) com velocidade extrema (LPUs).
+- 🧠 **Refinamento com IA:** Transforma o texto bruto em parágrafos legíveis, adiciona pontuação e corrige gramática (Llama 3.3).
+- 🎨 **Design System Moderno:** Interface minimalista e responsiva, construída com Tailwind CSS v4.
+- 🌍 **Deploy Híbrido:** Frontend distribuído via CDN (Netlify) e Backend Python em contêiner (Render).
+- 🔒 **Segurança:** Variáveis de ambiente protegidas e CORS configurado explicitamente.
+- 📱 **Mobile First:** Funciona perfeitamente no celular, com upload de arquivos de voz do WhatsApp.
 
 ## 🛠️ Tech Stack
 
-**Frontend:**
-- [Next.js 15](https://nextjs.org/) (App Router)
-- [React](https://react.dev/)
-- [Tailwind CSS v4](https://tailwindcss.com/) (CSS Variables & Tokens)
+**Frontend (Netlify):**
+- [Next.js 15](https://nextjs.org/) (App Router & Server Actions)
+- [React 19](https://react.dev/)
+- [Tailwind CSS v4](https://tailwindcss.com/) (CSS Variables & Design Tokens)
 - [Lucide React](https://lucide.dev/) (Ícones)
 
-**Backend:**
-- [Python](https://www.python.org/)
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [Groq SDK](https://groq.com/) (AI Inference)
+**Backend (Render):**
+- [Python 3.12](https://www.python.org/)
+- [FastAPI](https://fastapi.tiangolo.com/) (Alta performance assíncrona)
+- [Groq SDK](https://groq.com/) (Inferência de IA)
 
-## 📂 Estrutura do Projeto
+## 📂 Arquitetura do Projeto
 
-O projeto segue uma arquitetura limpa e modular:
+O projeto segue uma separação clara de responsabilidades:
 
-```bash
-.
-├── src/
-│   ├── app/
-│   │   ├── globals.css      # Design System (Tokens de Cores)
-│   │   └── page.tsx         # Página Principal (Lógica)
-│   └── components/          # Componentes Reutilizáveis
-│       ├── Header.tsx
-│       ├── UploadArea.tsx
-│       ├── StatusCard.tsx
-│       └── TranscriptionViewer.tsx
-├── api.py                   # Servidor Backend (FastAPI)
-└── ...
+```mermaid
+graph LR
+A[Usuário/Browser] -- Upload Audio --> B[Frontend (Next.js)]
+B -- POST /transcrever --> C[Backend (FastAPI)]
+C -- Audio File --> D[Groq Cloud (Whisper V3)]
+D -- Texto Bruto --> C
+C -- Texto Bruto --> B
+B -- Request Melhoria --> C
+C -- Prompt --> E[Groq Cloud (Llama 3)]
+E -- Texto Formatado --> C
+C -- JSON Final --> A
 🚀 Como Rodar Localmente
 Pré-requisitos
 Node.js 18+
 
-Python 3.8+
+Python 3.10+
 
-Uma API Key da Groq Cloud (Gratuita)
+API Key da Groq Cloud (Gratuita)
 
-1. Configurar o Backend (Python)
+1. Backend (Python)
 Bash
 
-# Instale as dependências
-pip install fastapi uvicorn groq python-multipart
+# Entre na pasta raiz
+cd web-transcritor
 
-# Configure sua chave API
-# Abra o arquivo api.py e insira sua chave na variável GROQ_API_KEY
-# (Ou configure via variável de ambiente para mais segurança)
+# Crie um ambiente virtual (Opcional, mas recomendado)
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou venv\Scripts\activate # Windows
+
+# Instale as dependências
+pip install -r requirements.txt
+
+# Crie o arquivo .env
+# Adicione: GROQ_API_KEY="sua_chave_aqui"
 
 # Inicie o servidor
 uvicorn api:app --reload
-O backend rodará em http://127.0.0.1:8000
-
-2. Configurar o Frontend (Next.js)
-Em um novo terminal, na pasta do projeto:
-
+# O backend rodará em [http://127.0.0.1:8000](http://127.0.0.1:8000)
+2. Frontend (Next.js)
 Bash
 
 # Instale as dependências
@@ -80,22 +86,19 @@ npm install
 
 # Inicie o servidor de desenvolvimento
 npm run dev
-Acesse a aplicação em http://localhost:3000
+Acesse a aplicação em http://localhost:3000.
 
 🎨 Design System & Customização
-Este projeto utiliza o Tailwind CSS v4 com variáveis CSS nativas para definição de temas.
-
-Para alterar as cores do projeto (ex: mudar o azul da marca), edite apenas o arquivo src/app/globals.css:
+Este projeto utiliza o novo Tailwind CSS v4. O tema é controlado via variáveis CSS nativas no arquivo src/app/globals.css:
 
 CSS
 
 @theme {
-  --color-brand: #seu-novo-hex; 
+  --color-brand: #136dec;       /* Azul Principal */
+  --color-surface-base: #f5f5f7; /* Fundo estilo Apple */
 }
-O modo escuro e claro é gerenciado automaticamente via classes semânticas (bg-surface-base, text-txt-primary), facilitando a manutenção e escalabilidade.
-
 🤝 Contribuição
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
+Contribuições são bem-vindas!
 
 Fork o projeto
 
@@ -108,6 +111,8 @@ Push para a Branch (git push origin feature/MinhaFeature)
 Abra um Pull Request
 
 📝 Licença
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+Este projeto está sob a licença MIT.
 
-Feito com 💙 e muita IA.
+<div align="center"> Feito com 💙 e muita IA por <a href="https://www.linkedin.com/in/marcos-de-sousa-lima-1a6a6320/">Marcos Lima</a>. </div>
+
+
