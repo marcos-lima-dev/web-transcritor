@@ -41,15 +41,15 @@ O projeto segue uma separação clara de responsabilidades:
 
 ```mermaid
 graph LR
-A[Usuário/Browser] -- Upload Audio --> B[Frontend (Next.js)]
-B -- POST /transcrever --> C[Backend (FastAPI)]
-C -- Audio File --> D[Groq Cloud (Whisper V3)]
-D -- Texto Bruto --> C
-C -- Texto Bruto --> B
-B -- Request Melhoria --> C
-C -- Prompt --> E[Groq Cloud (Llama 3)]
-E -- Texto Formatado --> C
-C -- JSON Final --> A
+    A["Usuário (Browser)"] -- Upload Audio --> B["Frontend (Next.js)"]
+    B -- "POST /transcrever" --> C["Backend (FastAPI)"]
+    C -- Arquivo Audio --> D["Groq Cloud (Whisper V3)"]
+    D -- Texto Bruto --> C
+    C -- Texto Bruto --> B
+    B -- "Request Melhoria" --> C
+    C -- Prompt --> E["Groq Cloud (Llama 3)"]
+    E -- Texto Formatado --> C
+    C -- JSON Final --> A
 🚀 Como Rodar Localmente
 Pré-requisitos
 Node.js 18+
@@ -77,7 +77,7 @@ pip install -r requirements.txt
 
 # Inicie o servidor
 uvicorn api:app --reload
-# O backend rodará em [http://127.0.0.1:8000](http://127.0.0.1:8000)
+# O backend rodará em http://127.0.0.1:8000
 2. Frontend (Next.js)
 Bash
 
@@ -114,5 +114,3 @@ Abra um Pull Request
 Este projeto está sob a licença MIT.
 
 <div align="center"> Feito com 💙 e muita IA por <a href="https://www.linkedin.com/in/marcos-de-sousa-lima-1a6a6320/">Marcos Lima</a>. </div>
-
-
