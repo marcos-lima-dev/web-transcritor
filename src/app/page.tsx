@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 
-import { Header } from "@/components/Header";
+// Removemos o Header daqui (já está no layout.tsx)
 import { UploadArea } from "@/components/UploadArea";
 import { StatusCard } from "@/components/StatusCard";
 import { TranscriptionViewer } from "@/components/TranscriptionViewer";
+
+// Define a URL da API (Pega do Netlify em produção OU usa localhost no seu PC)
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -15,22 +18,30 @@ export default function Home() {
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
 
-  // ... (Lógica de upload e API mantém igual) ...
   const handleUpload = async (selectedFile: File) => {
     setFile(selectedFile);
     setStatus('processing');
     setResult(null);
     setAiResult(null);
+    
     const formData = new FormData();
     formData.append("file", selectedFile);
+    
     try {
-      const response = await fetch("http://127.0.0.1:8000/transcrever", { method: "POST", body: formData });
+      // CORREÇÃO: Usando a variável API_URL em vez do link fixo
+      const response = await fetch(`${API_URL}/transcrever`, { 
+        method: "POST", 
+        body: formData 
+      });
+      
       if (!response.ok) throw new Error("Erro na API");
+      
       const data = await response.json();
       setResult(data);
       setStatus('completed');
     } catch (error) {
-      alert("Erro na conexão");
+      console.error(error);
+      alert("Erro na conexão com o servidor.");
       setStatus('idle');
       setFile(null);
     }
@@ -40,15 +51,20 @@ export default function Home() {
     if (!result?.texto_completo) return;
     setLoadingAI(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/melhorar", {
+      // CORREÇÃO: Usando a variável API_URL
+      const response = await fetch(`${API_URL}/melhorar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ texto: result.texto_completo }),
       });
       const data = await response.json();
       setAiResult(data.texto_melhorado);
-    } catch (error) { alert("Erro na IA"); } 
-    finally { setLoadingAI(false); }
+    } catch (error) { 
+      alert("Erro ao conectar com a IA"); 
+    } 
+    finally { 
+      setLoadingAI(false); 
+    }
   };
 
   const reset = () => {
@@ -59,41 +75,42 @@ export default function Home() {
   };
 
   return (
-    // USA O TOKEN: bg-surface-base (Fundo da página definido no globals.css)
-    <main className="bg-surface-base text-txt-primary antialiased min-h-screen flex justify-center p-4 sm:p-0 transition-colors duration-300">
+    // Removemos <main>, backgrounds e bordas extras. 
+    // O layout.tsx já cuida de centralizar tudo.
+    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
       
-      {/* USA OS TOKENS: bg-surface-card (Fundo branco/escuro) e border-border-subtle */}
-      <div className="relative flex min-h-screen sm:min-h-0 sm:h-[90vh] sm:my-auto w-full flex-col max-w-md bg-surface-card shadow-sm sm:shadow-xl sm:rounded-2xl overflow-hidden border border-border-subtle transition-colors duration-300">
-        
-        <Header />
+      {/* Área de Upload (Só aparece se não tiver arquivo) */}
+      {status === 'idle' && (
+        <UploadArea onFileSelect={handleUpload} />
+      )}
 
-        <div className="flex-1 overflow-y-auto flex flex-col px-5 pt-6 pb-24 gap-6 scrollbar-hide">
-          {status === 'idle' && <UploadArea onFileSelect={handleUpload} />}
-          {file && <StatusCard file={file} status={status} time={result?.tempo_processamento} />}
-          {result && (
-            <TranscriptionViewer 
-              text={result.texto_completo}
-              aiText={aiResult}
-              onImprove={handleImprove}
-              isImproving={loadingAI}
-            />
-          )}
+      {/* Card de Status (Processando ou Concluído) */}
+      {file && (
+        <StatusCard file={file} status={status} time={result?.tempo_processamento} />
+      )}
+
+      {/* Visualizador do Texto (Só aparece quando termina) */}
+      {result && (
+        <TranscriptionViewer 
+          text={result.texto_completo}
+          aiText={aiResult}
+          onImprove={handleImprove}
+          isImproving={loadingAI}
+        />
+      )}
+
+      {/* Botão Flutuante "Nova Transcrição" */}
+      {status === 'completed' && (
+        <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+          <button 
+            onClick={reset}
+            className="pointer-events-auto flex items-center gap-2 rounded-full bg-brand hover:bg-brand-dark text-white font-bold px-6 py-3 shadow-xl shadow-brand/25 transition-all transform hover:scale-105 active:scale-95 ring-2 ring-white dark:ring-surface-card"
+          >
+            <Plus className="w-5 h-5" />
+            Nova Transcrição
+          </button>
         </div>
-
-        {status === 'completed' && (
-          // USA O TOKEN: bg-surface-card/90 (Transparência automática)
-          <div className="fixed sm:absolute bottom-0 z-20 mx-auto w-full max-w-md bg-surface-card/90 backdrop-blur-lg px-5 py-4 border-t border-border-subtle left-0 right-0">
-            {/* USA O TOKEN: bg-brand e bg-brand-dark */}
-            <button 
-              onClick={reset}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold h-12 shadow-lg shadow-brand/20 transition-all active:scale-[0.98]"
-            >
-              <Plus className="w-5 h-5" />
-              Nova Transcrição
-            </button>
-          </div>
-        )}
-      </div>
-    </main>
+      )}
+    </div>
   );
 }
